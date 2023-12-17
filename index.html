@@ -158,17 +158,20 @@
         </div>
         <script>
         //Make enter work
-        var input = document.getElementById("userreg");
-            input.addEventListener("keypress", function(event) {
-             if (event.key === "Enter") {
-            event.preventDefault();
-            saveUser();
+        const input = document.getElementById("userreg");
+        const username = window.localStorage.getItem("username")
+        if(username) input.value = username;
+        input.addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                saveUser();
             }
         }); 
         //Store username in localstorage
         function saveUser( name ) {
-        var player = document.getElementById('userreg').value;
-        document.cookie = 'username=' + player;
+            const player = document.getElementById('userreg').value;
+            window.localStorage.setItem("username", player);
+            document.cookie = 'username=' + player;
         }
         // Live scores
         //Copy paste from livescores.txt to replace.
@@ -183,14 +186,12 @@
                 if (item && item.length) {
                     item = item.reverse();
                     sid = [];
-                    for (let i = 0; i < item.length; ++i) {
-                        if (item[i].sid)
-                            sid.push(item[i].sid);
+                    for (let i = 0; i < item.length; i++) {
+                        if(item[i].sid) sid.push(item[i].sid);
                     }
                     sid = [...new Set(sid)]; // uniq
-                    for (let i = 0; i < 6 && i < sid.length; ++i){
-                    addBeatmapSid(sid[i], listhistory)
-                    }
+                    sid.length = Math.min(sid.length, 6)
+                    addBeatmapSids(sid, listhistory)
                 } else {
                     listhistory.innerText =
                         "You haven't played any Beatmaps yet! Click on a Beatmap and select the difficulty to start playing!";
@@ -198,7 +199,7 @@
                 })
             }
         // Get new beatmaps
-        addBeatmapList("https://catboy.best/api/search?amount=6&mode=0",
+        addBeatmapList("https://catboy.best/api/v2/search?amount=6&status=1&status=4&status=-2&mode=0",
             document.getElementById("beatmap-list-new"),
             function (t) {
                 return (t.modes & 1) != 0;
@@ -210,7 +211,7 @@
             list.innerHTML = ''
             // Re-fill Random List
             let randquery = Math.random().toString(36).replace(/[^a-p]+/g, '').substr(1, 5);
-            addBeatmapList("https://catboy.best/api/search?q=" + randquery + "&amount=6&mode=0", list,
+            addBeatmapList("https://catboy.best/api/v2/search?q=" + randquery + "&amount=6&status=1&status=4&status=-2&mode=0", list,
                 function (t) {
                     while (list.firstChild) list.removeChild(list.firstChild);
                     return (t.modes & 1) != 0;
@@ -218,7 +219,7 @@
         }
         genRandomList();
         // Get hot beatmaps
-        addBeatmapList("https://catboy.best/api/search?amount=6&mode=0&query=Top Rated", document.getElementById(
+        addBeatmapList("https://catboy.best/api/v2/search?amount=6&status=1&status=4&status=-2&mode=0&query=Top Rated", document.getElementById(
             "beatmap-list-hot"));
         // Favorite beatmaps
         if (window.localforage) {
@@ -231,10 +232,8 @@
                 if (val && val.size) {
                     let listlike = document.getElementById("beatmap-list-liked");
                     list = Array.from(val);
-                    for (let i = 0; i < list.length && i < 6; ++i){
-                        addBeatmapSid(list[i], listlike);
-                    }
-
+                    list.length = Math.min(list.length, 6)
+                    addBeatmapSids(list, listlike);
                 } else {
                     document.getElementById("beatmap-list-liked").innerText =
                         "You haven't favorited any Beatmaps yet! Click on the heart in the lower right corner of the Beatmap to save it.";

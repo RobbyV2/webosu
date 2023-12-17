@@ -265,7 +265,7 @@ define([], function () {
             args += "?sid=" + encodeURIComponent(summary.sid);
             args += "&bid=" + encodeURIComponent(summary.bid);
             args += "&title=" + encodeURIComponent(summary.title);
-            args += "&player=" + encodeURIComponent(getUser('username'));
+            args += "&player=" + encodeURIComponent(window.localStorage.getItem("username") || "Unknown");
             args += "&version=" + encodeURIComponent(summary.version);
             args += "&mods=" + encodeURIComponent(summary.mods);
             args += "&grade=" + encodeURIComponent(summary.grade);
@@ -273,13 +273,11 @@ define([], function () {
             args += "&combo=" + encodeURIComponent(summary.combo);
             args += "&acc=" + encodeURIComponent(summary.acc);
             args += "&time=" + encodeURIComponent(summary.time);
-            /*
             args += "&greats=" + encodeURIComponent(summary.count300);
             args += "&goods=" + encodeURIComponent(summary.count100);
             args += "&bads=" + encodeURIComponent(summary.count50);
             args += "&misses=" + encodeURIComponent(summary.misses);
             args += "&modsnum=" + encodeURIComponent(summary.modsNum);
-            */
             args += "&artist=" + encodeURIComponent(summary.artist);
             xhr.open("GET", url + args);
             xhr.onload = function () {
@@ -289,14 +287,14 @@ define([], function () {
                 console.error("Score upload failed");
             }
             xhr.send();
-        }
+            
             //TODO: Change url to api.webosu.online OR integrate to Mino over /api/webosu/score ~ Lemres
-        /*    fetch(`https://api.catboy.best/score${args}`).then(resp => {
+            fetch(`https://api.catboy.best/score${args}`).then(resp => {
                 resp.json().then(data => {
                     if(data.error) console.error("Discord Submission failed: " + data.error);
                 })
             })
-        } */
+        }
 
         this.showSummary = function (metadata, hiterrors, retryCallback, quitCallback) {
             function errortext(a) {
@@ -372,7 +370,7 @@ define([], function () {
             newdiv(left, "block good", this.judgecnt.good.toString());
             newdiv(left, "block meh", this.judgecnt.meh.toString());
             newdiv(left, "block miss", this.judgecnt.miss.toString());
-            newdiv(left, "block player", getUser("username"));
+            newdiv(left, "block player", window.localStorage.getItem("username") || "Unknown");
             newdiv(left, "block combo", this.maxcombo.toString() + "x");
             if (this.fullcombo)
                 newdiv(left, "fullcombo");
